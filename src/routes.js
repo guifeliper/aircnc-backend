@@ -1,8 +1,13 @@
 const express = require('express');
+const multer = require('multer');
+const uploadConfig = require('./config/upload');
+
+
+const SessionController = require('./controllers/SessionController');
+const SpotController = require('./controllers/SpotController');
 
 const routes = express.Router();
-
-// routes.get
+const upload = multer(uploadConfig);
 
 // GET, POST, PUT, DELETE
 // req.query = Access query params (filter)
@@ -10,6 +15,9 @@ const routes = express.Router();
 // req.body = Access the body of the request (create, edit)
 
 
-app.post('/users', (req, res) => {
-  return res.json(req.body);
-});
+routes.post('/sessions', SessionController.store);
+
+routes.post('/spots', upload.single('thumbnail'), SpotController.store);
+
+
+module.exports = routes;
