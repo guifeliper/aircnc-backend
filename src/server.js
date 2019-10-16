@@ -1,25 +1,39 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const routes = require('./routes');
 const cors = require('cors');
 const path = require('path');
-
-
 const user = ''; 
 const password = ''; 
 const connectString = `mongodb+srv://${user}:${password}@omnistack-mudrz.mongodb.net/semana09?retryWrites=true&w=majority`;
 
+const socketio = require('socket.io');
+const http = require('http');
+
+const routes = require('./routes');
+
+
+const app = express();
+const server = http.Server(app);
+const io = socketio(server);
+
+io.on('connection', socket => {
+    console.log(socket.handshake.query);
+    console.log('Usuário conectado', socket.id);
+
+    socket.emit('hello', 'World')
+});
+  
 mongoose.connect(connectString, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
 
-const app = express();
+
 
 app.use(cors());
 app.use(express.json());
 app.use('/files', express.static(path.resolve(__dirname, '..', 'uploads')));
 app.use(routes);
 
-app.listen(3333);
+server.listen(3333);
