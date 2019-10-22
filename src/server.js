@@ -16,20 +16,29 @@ const app = express();
 const server = http.Server(app);
 const io = socketio(server);
 
-io.on('connection', socket => {
-    console.log(socket.handshake.query);
-    console.log('Usuário conectado', socket.id);
 
-    socket.emit('hello', 'World')
-});
-  
 mongoose.connect(connectString, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
 
+// Not good for production user redis instead
+const connectedUsers = {};
 
+io.on('connection', socket => {
+    const { user_id } = socket.handshake.query;
+
+    connectedUsers[user_id] = socket.id;
+});
+  
+
+app.use((req, res, next) => {
+  req.io = io;
+  req.connectedUsers = connectedUsers;
+
+  return next();
+});
 
 app.use(cors());
 app.use(express.json());

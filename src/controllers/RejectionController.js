@@ -1,0 +1,37 @@
+const Booking = require('../models/Booking');
+
+
+module.exports = {
+  async store(req, res){
+    const { booking_id } = req.params;
+
+    const booking = await Booking.findById(booking_id).populate('spot');
+
+    booking.approved = false;
+
+    await booking.save();
+
+    const bookingUserSocket = req.connectedUsers[booking.user];
+
+    if(bookingUserSocket) {
+      req.io.to(bookingUserSocket).emit('booking_response', booking);
+    }
+
+    return res.json(booking);
+
+// Dog 
+// var goodFood = ['maçã', 'maçã', 'damasco', 'damasco', 'banana', 'banana', 'ananas', 'mirtilo', 'mirtilo', 'melão', 'melão', 'amora ',' cranberries ',' manga ',' manga ',' laranja ',' laranjas ',' peras ',' pêra ',' abacaxi ',' abacaxi ',' morangos ',' morango ',' melancia ', 'melancias', 'milho', 'brócolis', 'couve-flor', 'repolho', 'couve-flor', 'couve', 'aspargos', 'pimentão', 'pimentão', 'vermelho, pimentão', ' pimentões alaranjados ',' pimentões verdes ',' pimentão vermelho ',' pimentão laranja ',' pimentão verde ',' couve de bruxelas ',' cenoura ',' cenoura ',' aipo ',' aipo ', 'pepino', 'pepino', 'feijão verde', 'feijão verde', 'alface', 'ervilha', 'ervilha', 'abóbora', 'batata doce', 'batata doce', 'abobrinha', 'batata ',' batata ',' batata ',' amoras ',' amora ',' kiwis ',' kiwi ',' datas ',' melada ',' ameixa ',' ameixas ',' tangerinas ',' tangerina ', 'nectarina', 'nectarinas', 'ovo', 'ovos', 'pipoca', 'pipoca', 'pão', 'pão branco', 'pão integral', 'pão integral', 'aveia', 'frango ',' carne de porco ',' carne ',' cinamon ',' tur chave ',' arroz ',' arroz integral ',' camarão ',' presunto ',' amendoim ',' amendoim ',' quinoa ',' trigo ',' grão ',' grãos ',' macarrão ',' espaguete ',' bacon ',' pretzel ',' roll ',' azeitonas ',' azeitona ',' alface ',' alcachofra ',' beterraba ',' beterraba ',' gengibre ',' feijão preto ',' feijão ',' feijão preto ',' feijão ',' berinjela ',' berinjela ',' pastinaga ',' pastinaga ',' salmão ',' figos ',' fig ',' tomate ',' tomate ',' tomate ' , 'grão-de-bico', 'grão-de-bico', 'vinagre', 'cordeiro', 'trigo sarraceno', 'tomilho', 'couve', 'soja', 'comida para cães', 'comida para cães', 'água', 'goiaba', 'tangerina', 'mamão', 'mamão', 'capsicum', 'capsicum', 'leite de soja', 'lentilhas', 'lentilha', 'bife', 'smelts', 'sardinhas', 'anchovas', ' arenque' , 'cavala' ,'atum' ,'carne de veado'];
+// var moderFood = ['framboesas', 'framboesa', 'espinafre', 'coco', 'sal', 'queijo', 'caju', 'caju', 'amêndoas', 'amêndoas', 'queijo cottage', ' cottagecheese ',' mel ',' leite ',' iogurte ',' manteiga ',' cereais ',' farinha ',' cerejas ',' cereja ',' flocos de milho ',' flocos de milho ',' salada ',' carne seca', 'noz', 'tofu', 'mussarela', 'picles', 'picles', 'maionese', 'maionese', 'ketchup', 'camarão', 'abóbora', 'presunto', 'osso ',' ossos ',' manteiga de amendoim ',' manteiga de amendoim ',' creme de leite ',' creme de leite ',' pistache ',' pistache '];
+// var dangerousFood = ['limão', 'limão', 'lima', 'lima', 'toranja', 'toranja', 'cebola', 'cebola', 'alho', 'alho', 'ruibarbo', 'ruibarbo ',' cogumelo selvagem ',' cogumelo selvagem ',' cogumelos selvagens ',' uvas ',' uva ',' cogumelos ',' cogumelo ',' passas ',' uvas passas ',' toranja ',' nozes de macadâmia ',' macadâmia ',' macadamianuts', 'macadamianut',' café ',' chá ',' cappuccino ',' latte ',' álcool ',' noz-moscada ',' fermento ',' sorvete ',' sorvete ',' cebolinha ',' alho em pó ',' alho-poró ',' massa de levedura ',' massa de levedura ',' goma ',' nutella ',' cola ',' coca cola ',' pepsi ',' soda ',' jalapeno ', 'jalapeños', 'cebolinha', 'cebolinha', 'açúcar', 'malagueta', 'chocolate', 'chocolate ao leite', 'peixe', 'cebolinha', 'cebolinha', 'cebolinha', 'verde cebola ',' pimenta ',' pimenta ',' batata frita ',' batata frita ',' batata frita ',' cerveja ',' vinho ',' vinho ',' champanhe ',' uísque ',' uísque ',' tequila ' , 'vodka', 'absinto', 'rum', 'brandy', 'snaps', 'sidra', 'jagermeister', 'jager meister', 'jägermeister', 'jäger meister', 'baileys', 'licor' , ' gin ',' abacate ',' pizza ',' batata frita ',' linguiça ',' oreo ',' sidra de maçã ',' pimenta ',' alho-porro ',' peito ',' mostarda ',' alcaçuz ',' mastigação goma ',' xilitol ',' feijão ',' batata frita ',' batata frita ',' chocolate amargo ',' molho ',' caramelo ',' coque Zero ',' cola leve ',' chalota ',' chalota ' , 'sprite', 'geleia', 'geleia', 'semente de papoula', 'semente de papoula', 'sementes de papoula', 'sementes de papoula', 'órbita', 'marshmallow', 'marshmallows', 'balas', 'balas ',' algodão doce ',' romã '];
+// var badJokes = ['merda', 'pau', 'lixo', 'lixo', 'sua mãe', 'filhos', 'plástico', 'ácido', 'veneno', 'porcaria', 'areia', ' flor ',' papel ',' burro ',' gato ',' cavalo ',' granada ',' erva daninha ',' pedra ',' pedras ',' cocaína ',' pênis ',' jesus ',' amor ' , 'metal', 'medicamento', 'veneno', 'lição de casa', 'esteróides', 'cianeto'];
+
+// Cat 
+// var goodFood = ['rice','brown rice','sage','clary','thyme','apple','apples','apricots','apricot','banana','bananas','blueberries','blueberry','cantaloupe','cantaloupes','cranberries','cranberry','mangoes','mangoe','orange','oranges','pear','pears','pineapple','pineapples','raspberries','raspberry','strawberries','strawberry','watermelon','watermelon','pumpkin','squash','peas','cucumber','carrots','berries','broccoli','asparagus','green beans','green bean','broccolis','sweet potatoes','sweet potatoe','pea','peas','carrot','cucumbers','mushrooms','mushroom','corn','couscous','millet','bread','breadcrumbs','herring','salmon','oatmeal','canned fish','honeydew','celery','green beans','green bean','quinoa','quinoas','tapioca','tapiocas','barley','barleis','corn', 'whole','grains','zucchini','green bell peppers','red bell peppers','yellow bell peppers','green bell pepper','red bell pepper','yellow bell pepper','peach','peaches','green bell peppers','brussels sprout','brussels sprout','cabbage','cabbages','mullberries','mullberry','bell pepper','bell peppers','kiwis','kiwi','plum','plums','bacon'];
+// var moderateFood = ['cottage cheese','cottagecheese','yogurt','butter','mozzarella','sour cream','sourcream','egg','eggs','poultry','meat','bone','bones','fish','fishes','liver','dog food','dogfood','beef','almonds','almond',' walnuts','walnut','cbrazil nuts','brazil nut','bread','spinach','chicken','turkey','duck','rabit','tuna','date','dates','nectarine','nectarines','milk','ham','cheese','ice cream','icecream','pizza'];
+// var harmfulFood = ['beer','wine','champagne','whiskey','whisky','tequila', 'vodka','absinthe','rum','brandy','snaps','cider','jagermeister','jager meister', 'jägermeister','jäger meister','baileys','liqueur','gin','alcogol','chocolate','energy drink','coffee','tea','grape','grapes','raisin','raisins','onion','onions','garlic','green onion','garlic powder','green onions','spring onion','spring onions','scallion','scallions','dark chocolate','xylitol','coke zero','light cola','cola light','coca cola','coca-cola','green tomatoes','avocado','chives','caffeine','bone','bones','yeast dough','yeast','potatoe','potatoes','macadamia nuts','macadamia nut','candy','gum','coconut milk','bread dough','rhubarb','peanut butter','citrus oil','sugar','bone','bones','tomato','tomatoes','tangerine','tangerines'];
+// var badJokes = ['shit','dick','trash','rubish','your mother','kids','plastic','acid','venom','crap','sand','flower','paper','ass','cat','horse','garnet','weed','stone','stones','cocaine','penis','jesus','love','metal','medicine','poison','homework','steroids'];
+
+
+
+}
+};
